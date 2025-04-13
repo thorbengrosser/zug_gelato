@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.3/dist/forms.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Progress bar -->
+    <div class="mb-8">
+        <div class="relative">
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500" style="width: 70%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span class="font-bold text-indigo-600">Step 5/7</span>
+                <span>Response Format</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step content -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Choose Response Format
+            </h3>
+            <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Select how you would like to receive the requested information.</p>
+            </div>
+            
+            <form action="{{ url_for('step6_contact') }}" method="POST" class="mt-5">
+                {{ form.csrf_token }}
+                
+                <div class="space-y-6">
+                    <div class="space-y-4">
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="email" 
+                                       name="response_format" 
+                                       value="email"
+                                       type="radio"
+                                       checked
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="email" class="font-medium text-gray-700">Email (Recommended)</label>
+                                <p class="text-gray-500">Receive documents and responses electronically</p>
+                            </div>
+                        </div>
+                        
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="postal" 
+                                       name="response_format" 
+                                       value="postal"
+                                       type="radio"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="postal" class="font-medium text-gray-700">Postal Mail</label>
+                                <p class="text-gray-500">Receive physical copies by mail</p>
+                            </div>
+                        </div>
+                        
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="consultation" 
+                                       name="response_format" 
+                                       value="consultation"
+                                       type="radio"
+                                       class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="consultation" class="font-medium text-gray-700">On-site Consultation</label>
+                                <p class="text-gray-500">View documents at the administration's office</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation buttons -->
+                    <div class="flex justify-between pt-5">
+                        <a href="{{ url_for('step3_input') }}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Back
+                        </a>
+                        <button type="submit"
+                                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Next
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

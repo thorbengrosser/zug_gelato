@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.3/dist/forms.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Progress bar -->
+    <div class="mb-8">
+        <div class="relative">
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500" style="width: 28%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span class="font-bold text-indigo-600">Step 2/7</span>
+                <span>Request Type</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step content -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Select Request Type
+            </h3>
+            <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Choose what type of information you want to request. You can select one or both options.</p>
+            </div>
+            
+            <form method="POST" class="mt-5">
+                {{ form.csrf_token }}
+                
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Document Request Tile -->
+                    <label class="relative flex flex-col p-6 bg-white border rounded-lg shadow-sm cursor-pointer type-tile" data-type="document">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="document_request" class="hidden type-checkbox" value="y">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Document Request</h3>
+                                <p class="mt-1 text-sm text-gray-500">Request access to existing administrative documents</p>
+                            </div>
+                        </div>
+                        <div class="hidden absolute top-3 right-3 type-indicator">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </label>
+
+                    <!-- Explanation Request Tile -->
+                    <label class="relative flex flex-col p-6 bg-white border rounded-lg shadow-sm cursor-pointer type-tile" data-type="explanation">
+                        <div class="flex items-center">
+                            <input type="checkbox" name="explanation_request" class="hidden type-checkbox" value="y">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-indigo-50">
+                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-medium text-gray-900">Explanation Request</h3>
+                                <p class="mt-1 text-sm text-gray-500">Request explanations about administrative decisions or actions</p>
+                            </div>
+                        </div>
+                        <div class="hidden absolute top-3 right-3 type-indicator">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="mt-6">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="continue-button" disabled>
+                        Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tiles = document.querySelectorAll('.type-tile');
+    const continueButton = document.getElementById('continue-button');
+    
+    // Function to update UI based on selection
+    function updateSelectionState() {
+        let atLeastOneSelected = false;
+        
+        tiles.forEach(tile => {
+            const checkbox = tile.querySelector('.type-checkbox');
+            const indicator = tile.querySelector('.type-indicator');
+            
+            if (checkbox.checked) {
+                tile.classList.add('border-indigo-500', 'ring-2', 'ring-indigo-500');
+                indicator.classList.remove('hidden');
+                atLeastOneSelected = true;
+            } else {
+                tile.classList.remove('border-indigo-500', 'ring-2', 'ring-indigo-500');
+                indicator.classList.add('hidden');
+            }
+        });
+        
+        // Enable/disable the continue button
+        continueButton.disabled = !atLeastOneSelected;
+    }
+    
+    // Toggle selection when clicking on a tile
+    tiles.forEach(tile => {
+        tile.addEventListener('click', function() {
+            const checkbox = this.querySelector('.type-checkbox');
+            checkbox.checked = !checkbox.checked;
+            
+            updateSelectionState();
+        });
+    });
+    
+    // Initial state update
+    updateSelectionState();
+});
+</script>
+{% endblock %} 

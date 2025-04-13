@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white shadow-lg rounded-lg p-8 max-w-4xl mx-auto my-8">
+    <!-- Download Button -->
+    <div class="flex justify-end mb-6">
+        <form action="{{ url_for('download_pdf') }}" method="post">
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Télécharger en PDF
+            </button>
+        </form>
+    </div>
+
+    <div class="flex justify-between border-b border-gray-200 pb-6 mb-6">
+        <div class="w-1/2">
+            <p class="text-sm font-medium text-gray-900">{{ user_info.name }}</p>
+            <p class="text-sm text-gray-600">{{ user_info.street_address }}</p>
+            <p class="text-sm text-gray-600">{{ user_info.postal_code }} {{ user_info.city }}</p>
+            <p class="text-sm text-gray-600">{{ user_info.email }} / {{ user_info.phone }}</p>
+        </div>
+        
+        <div class="w-1/2 text-right">
+            <p class="text-sm font-medium text-gray-900">{{ administration.name_fr }}</p>
+            <p class="text-sm text-gray-600">{{ administration.address }}</p>
+            {% if administration.postal_code and administration.city %}
+                <p class="text-sm text-gray-600">{{ administration.postal_code }} {{ administration.city }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="prose max-w-none">
+        <p class="text-right italic text-gray-600">{{ user_info.city }}, le {{ current_date }}</p>
+        
+        <h2 class="text-lg font-semibold text-gray-900 mt-6 mb-4">Objet : Demande d'accès à l'information – Loi du 14 septembre 2018 relative à une administration transparente et ouverte</h2>
+        
+        <p class="mt-4">Madame, Monsieur,</p>
+        
+        <p>Conformément à la loi du 14 septembre 2018 relative à une administration transparente et ouverte, je vous adresse la présente demande d'accès à l'information.</p>
+        
+        <p>À ce titre, je sollicite :</p>
+        
+        {{ request_text | safe }}
+        
+        <p>Je vous prie de me fournir ces informations sous la forme la plus appropriée. Si les documents demandés existent en version numérique, je privilégie une transmission électronique à l'adresse courriel indiquée ci-dessus, pour plus de facilité. Le cas échéant, je suis disposé(e) à accepter un autre mode de consultation ou de copie, conformément aux dispositions de la loi.</p>
+        
+        <p>Afin de faciliter le traitement, j'ai veillé à formuler une demande aussi précise que possible. Si toutefois certains éléments vous semblent trop généraux ou imprécis, je reste à votre disposition pour apporter des précisions.</p>
+        
+        <p>Je vous rappelle qu'en vertu de la loi précitée, en cas de demande formulée de manière trop générale, il vous incombe de me demander des clarifications (plutôt que de rejeter la demande), ce qui suspend le délai de traitement jusqu'à réception d'une demande plus précise.</p>
+        
+        <p>Enfin, conformément à l'article 5 de la loi du 14/09/2018, je vous rappelle que vous êtes tenu de répondre dans un délai d'un mois à compter de la réception de la présente demande. Ce délai peut, si nécessaire, être prolongé d'un mois supplémentaire dans les cas exceptionnels prévus par la loi.</p>
+        
+        <p>Je vous remercie donc de bien vouloir me communiquer les informations demandées au plus tard dans un délai d'un mois, ou de me faire savoir, le cas échéant, pour quel motif légal vous ne pourriez pas y donner suite intégralement.</p>
+        
+        <p>Dans l'attente de votre réponse, je vous prie d'agréer, Madame, Monsieur, l'expression de ma considération distinguée.</p>
+        
+        <p class="text-right mt-12 font-semibold">{{ user_info.name }}<br>(demandeur/euse)</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.prose ul {
+    list-style-type: disc;
+    margin-left: 1.5em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.prose li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+@media print {
+    .bg-white {
+        box-shadow: none !important;
+    }
+    
+    .border-b {
+        border-bottom: none !important;
+    }
+}
+</style>
+{% endblock %} 

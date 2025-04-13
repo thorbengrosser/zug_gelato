@@ -1,0 +1,29 @@
+/* Custom styles for GeLATO */
+
+/* Add any custom styles here */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Add smooth transitions */
+.transition {
+    transition: all 0.3s ease;
+}
+
+/* Custom focus styles */
+.focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+}
+
+/* Custom button styles */
+.btn {
+    @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md;
+}
+
+.btn-primary {
+    @apply text-white bg-indigo-600 hover:bg-indigo-700;
+}
+
+.btn-secondary {
+    @apply text-indigo-700 bg-indigo-100 hover:bg-indigo-200;
+} 

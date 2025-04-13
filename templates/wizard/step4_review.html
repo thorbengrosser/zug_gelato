@@ -1,0 +1,666 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.3/dist/forms.min.css" rel="stylesheet">
+<script>
+// Global flag to prevent duplicate requests
+window.GeLATO = window.GeLATO || {};
+window.GeLATO.hasAnalysisRequestBeenSent = false;
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto" 
+     data-administration="{{ session.administration }}"
+     data-request-type="{{ 'document' if session.document_request else 'explanation' }}"
+     data-documents='{{ session.documents|tojson|safe if session.document_request else "[]" }}'
+     data-explanations='{{ session.explanations|tojson|safe if not session.document_request else "[]" }}'
+     data-all-items='{{ session.all_items|tojson|safe }}'>
+    <!-- Progress bar -->
+    <div class="mb-8">
+        <div class="relative">
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500" style="width: 56%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span class="font-bold text-indigo-600">Step 4/7</span>
+                <span>Request Review</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step content -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                AI-Powered Request Review
+            </h3>
+            <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Our AI will analyze your request and provide suggestions for improvement.</p>
+            </div>
+            
+            <div class="mt-5">
+                <!-- Analysis Results -->
+                <div class="rounded-md bg-gray-50 p-4" id="loading-message">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h3 class="text-sm font-medium text-blue-800">Analysis in Progress</h3>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <p>Please wait while we analyze your request...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results will be injected here -->
+                <div id="analysis-results" class="mt-4 space-y-4 hidden">
+                    <!-- Items Analysis with Integrated Suggestions -->
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <dt class="text-sm font-medium text-gray-500">Item-by-Item Analysis</dt>
+                            <dd class="mt-1">
+                                <div id="items-analysis" class="space-y-4">
+                                    <!-- Items will be added here dynamically -->
+                                </div>
+                            </dd>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="next-step-form" action="{{ url_for('step5_format') }}" method="POST" class="mt-8">
+                    <!-- Include the CSRF token directly -->
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <!-- Direct hidden field for refined text -->
+                    <input type="hidden" name="refined_text" id="refined-text-input" value="">
+                    
+                    <!-- Navigation buttons -->
+                    <div class="flex justify-between pt-5">
+                        <a href="{{ url_for('step3_input') }}" 
+                           class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Back
+                        </a>
+                        <button type="submit"
+                                id="next-button"
+                                disabled
+                                class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Next
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script>
+(function() {
+    // Use the global flag to prevent duplicate requests
+    if (window.GeLATO.hasAnalysisRequestBeenSent) {
+        console.log('Analysis request already sent globally, skipping initialization...');
+        return;
+    }
+    
+    // State variables
+    let analysisData = null;
+    
+    // DOM elements
+    const loadingMessage = document.getElementById('loading-message');
+    const analysisResults = document.getElementById('analysis-results');
+    const clarityScoreElement = document.getElementById('clarity-score');
+    const successLikelihoodElement = document.getElementById('success-likelihood');
+    const refinedTextElement = document.getElementById('refined-text');
+    const refinedTextInput = document.getElementById('refined-text-input');
+    const itemsAnalysis = document.getElementById('items-analysis');
+    const nextButton = document.getElementById('next-button');
+    const reevaluateButton = document.getElementById('reevaluate-button');
+    const form = document.getElementById('next-step-form');
+    
+    // Function to show error messages
+    function showError(message) {
+        if (loadingMessage) {
+            loadingMessage.classList.remove('hidden');
+            loadingMessage.innerHTML = `
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Error</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <p>${message}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Function to update analysis results in the UI
+    function updateAnalysisResults(data) {
+        if (!data) return;
+        
+        // Store the data
+        analysisData = data;
+        
+        // Hide loading, show results
+        if (loadingMessage) loadingMessage.classList.add('hidden');
+        if (analysisResults) analysisResults.classList.remove('hidden');
+        
+        // Update items analysis
+        if (itemsAnalysis) {
+            itemsAnalysis.innerHTML = '';
+            
+            // Get all items
+            const container = document.querySelector('.max-w-3xl');
+            const allItems = container.dataset.allItems ? JSON.parse(container.dataset.allItems) : [];
+            
+            // Create a card for each item
+            allItems.forEach((item, index) => {
+                const itemCard = document.createElement('div');
+                itemCard.className = 'border border-gray-200 rounded-md p-4 bg-white mb-4';
+                
+                const itemTitle = `Item ${index + 1}`;
+                const itemId = `item-${index + 1}`;
+                
+                // Get the refined text for this item
+                let refinedItemText = item.description;
+                console.log('Processing item:', index + 1);
+                console.log('Raw refined_text:', data.refined_text);
+                
+                if (typeof data.refined_text === 'string') {
+                    try {
+                        // Try to parse the string as JSON
+                        const parsed = JSON.parse(data.refined_text);
+                        if (typeof parsed === 'object') {
+                            // If it's an object, use it directly
+                            data.refined_text = parsed;
+                        } else {
+                            // If it's not an object, wrap it in a dict with Item 1
+                            data.refined_text = {'Item 1:': parsed};
+                        }
+                    } catch (e) {
+                        console.log('Failed to parse refined_text as JSON:', e);
+                        // If parsing fails, try to extract the item text manually
+                        const itemKey = `"Item ${index + 1}:"`;
+                        const itemMatch = data.refined_text.match(new RegExp(`${itemKey}\\s*"([^"]+)"`));
+                        if (itemMatch && itemMatch[1]) {
+                            refinedItemText = itemMatch[1];
+                        }
+                    }
+                }
+                
+                if (typeof data.refined_text === 'object') {
+                    console.log('Refined text is an object');
+                    // Try direct key first
+                    const itemKey = `Item ${index + 1}:`;
+                    if (data.refined_text[itemKey]) {
+                        console.log('Found item by key:', itemKey);
+                        refinedItemText = data.refined_text[itemKey];
+                    } else {
+                        // Try without colon
+                        const altKey = `Item ${index + 1}`;
+                        if (data.refined_text[altKey]) {
+                            console.log('Found item by alt key:', altKey);
+                            refinedItemText = data.refined_text[altKey];
+                        } else {
+                            // Try array-like access
+                            const keys = Object.keys(data.refined_text);
+                            if (keys.length > index) {
+                                console.log('Found item by index:', index);
+                                refinedItemText = data.refined_text[keys[index]];
+                            }
+                        }
+                    }
+                }
+                
+                console.log('Final refined text:', refinedItemText);
+                
+                // Get suggestions for this item
+                let itemSuggestions = [];
+                if (Array.isArray(data.suggestions)) {
+                    // Find suggestions for this specific item
+                    const itemStartIndex = data.suggestions.findIndex(s => s === `Item ${index + 1}:`);
+                    if (itemStartIndex !== -1) {
+                        const nextItemIndex = data.suggestions.findIndex((s, i) => i > itemStartIndex && s.startsWith('Item'));
+                        const endIndex = nextItemIndex !== -1 ? nextItemIndex : data.suggestions.length;
+                        itemSuggestions = data.suggestions.slice(itemStartIndex + 1, endIndex);
+                    }
+                }
+                
+                itemCard.innerHTML = `
+                    <div class="mb-4">
+                        <h4 class="font-medium text-gray-900">${itemTitle}</h4>
+                        <div class="mt-2 bg-gray-50 p-3 rounded-md">
+                            <p class="text-sm text-gray-600">Original Text:</p>
+                            <p class="mt-1 text-gray-900">${item.description}</p>
+                        </div>
+                        <div class="mt-2 flex items-center">
+                            <span class="text-sm font-medium mr-2">Success Likelihood:</span>
+                            <span class="px-2 py-1 text-sm font-semibold rounded-full ${getLikelihoodClass(data.success_likelihood)}">
+                                ${data.success_likelihood} (${Math.round(data.clarity_score * 100)}%)
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <p class="text-sm font-medium text-gray-700 mb-2">AI Suggestion:</p>
+                        <div class="flex items-start space-x-4">
+                            <textarea id="suggestion-${itemId}" 
+                                    class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                                    rows="3">${refinedItemText}</textarea>
+                            <div class="flex flex-col space-y-2">
+                                <button type="button" 
+                                        class="accept-suggestion-btn inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        data-item-id="${itemId}">
+                                    Accept
+                                </button>
+                                <button type="button" 
+                                        class="reevaluate-suggestion-btn inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                        data-item-id="${itemId}">
+                                    Re-evaluate
+                                </button>
+                            </div>
+                        </div>
+                        ${itemSuggestions.length > 0 ? `
+                            <div class="mt-3">
+                                <p class="text-sm font-medium text-gray-700">Improvement Suggestions:</p>
+                                <ul class="mt-2 pl-5 list-disc text-sm text-gray-600">
+                                    ${itemSuggestions.map(suggestion => `<li>${suggestion.replace(/^-\s*/, '')}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="mt-4 border-t border-gray-200 pt-4">
+                        <div class="flex items-center">
+                            <input type="checkbox" 
+                                   id="accepted-${itemId}" 
+                                   class="accepted-checkbox h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                                   data-item-id="${itemId}">
+                            <label for="accepted-${itemId}" class="ml-2 text-sm text-gray-600">Item accepted</label>
+                        </div>
+                    </div>
+                `;
+                
+                itemsAnalysis.appendChild(itemCard);
+                
+                // Add event listeners for this item
+                const acceptBtn = itemCard.querySelector(`.accept-suggestion-btn`);
+                const reevaluateBtn = itemCard.querySelector(`.reevaluate-suggestion-btn`);
+                const acceptedCheckbox = itemCard.querySelector(`.accepted-checkbox`);
+                const suggestionTextarea = itemCard.querySelector(`#suggestion-${itemId}`);
+                
+                if (acceptBtn) {
+                    acceptBtn.addEventListener('click', () => {
+                        acceptedCheckbox.checked = true;
+                        suggestionTextarea.readOnly = true;
+                        suggestionTextarea.classList.add('bg-gray-50');
+                        
+                        // Immediately store this item's refined text in the session
+                        const itemNumber = itemId.split('-')[1];
+                        const refinedText = {};
+                        refinedText[`Item ${itemNumber}:`] = suggestionTextarea.value;
+                        
+                        // Send an AJAX request to store just this item
+                        fetch('/api/store-refined-text', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                            },
+                            body: JSON.stringify({ refined_text: refinedText })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Stored refined text for item:', itemNumber, data);
+                            if (data.success) {
+                                // Show a small confirmation message
+                                const confirmMsg = document.createElement('div');
+                                confirmMsg.className = 'text-xs text-green-600 mt-1';
+                                confirmMsg.innerText = 'Saved!';
+                                suggestionTextarea.parentNode.appendChild(confirmMsg);
+                                
+                                // Remove the message after 2 seconds
+                                setTimeout(() => {
+                                    confirmMsg.remove();
+                                }, 2000);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error storing refined text:', error);
+                        });
+                        
+                        updateNextButtonState();
+                    });
+                }
+                
+                if (reevaluateBtn) {
+                    reevaluateBtn.addEventListener('click', () => {
+                        if (acceptedCheckbox.checked) {
+                            alert('This item has already been accepted. Please uncheck the "Item accepted" box to make changes.');
+                            return;
+                        }
+                        reevaluateSingleItem(itemId, suggestionTextarea.value);
+                    });
+                }
+                
+                if (acceptedCheckbox) {
+                    acceptedCheckbox.addEventListener('change', () => {
+                        if (!acceptedCheckbox.checked) {
+                            suggestionTextarea.readOnly = false;
+                            suggestionTextarea.classList.remove('bg-gray-50');
+                        }
+                        updateNextButtonState();
+                    });
+                }
+            });
+            
+            // Update the next button state
+            updateNextButtonState();
+        }
+    }
+    
+    // Helper function to get likelihood class
+    function getLikelihoodClass(likelihood) {
+        console.log('Getting class for likelihood:', likelihood);
+        switch (likelihood.toLowerCase()) {
+            case 'high':
+                return 'bg-green-100 text-green-800';
+            case 'good':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'moderate':
+                return 'bg-yellow-100 text-yellow-800';
+            default:
+                return 'bg-red-100 text-red-800';
+        }
+    }
+    
+    // Function to update the next button state
+    function updateNextButtonState() {
+        const allAccepted = document.querySelectorAll('.accepted-checkbox').length > 0 && 
+                           Array.from(document.querySelectorAll('.accepted-checkbox')).every(checkbox => checkbox.checked);
+        if (nextButton) {
+            nextButton.disabled = !allAccepted;
+        }
+    }
+    
+    // Function to reevaluate a single item
+    function reevaluateSingleItem(itemId, text) {
+        const container = document.querySelector('.max-w-3xl');
+        const requestData = {
+            administration: container.dataset.administration || '',
+            request_type: container.dataset.requestType || 'document',
+            description: [{
+                description: text,
+                date: ''
+            }]
+        };
+        
+        console.log('Re-evaluating item:', itemId);
+        console.log('Request data:', requestData);
+        
+        // Show loading state for this item
+        const itemCard = document.querySelector(`[data-item-id="${itemId}"]`).closest('.border');
+        const originalContent = itemCard.innerHTML;
+        itemCard.innerHTML = `
+            <div class="flex items-center justify-center p-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                <span class="ml-2 text-sm text-gray-600">Re-evaluating...</span>
+            </div>
+        `;
+        
+        fetch('/api/analyze-request', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Re-evaluation response:', data);
+            
+            // Get the item index from the itemId
+            const itemIndex = parseInt(itemId.split('-')[1]) - 1;
+            
+            // Update the suggestion textarea with new refined text
+            const suggestionTextarea = document.querySelector(`#suggestion-${itemId}`);
+            if (suggestionTextarea) {
+                let refinedText = text;
+                if (typeof data.refined_text === 'object') {
+                    console.log('Re-eval refined text is an object');
+                    // Try direct key first
+                    const itemKey = 'Item 1:';
+                    if (data.refined_text[itemKey]) {
+                        console.log('Found item by key:', itemKey);
+                        refinedText = data.refined_text[itemKey];
+                    } else {
+                        // Try without colon
+                        const altKey = 'Item 1';
+                        if (data.refined_text[altKey]) {
+                            console.log('Found item by alt key:', altKey);
+                            refinedText = data.refined_text[altKey];
+                        } else {
+                            // Try array-like access
+                            const keys = Object.keys(data.refined_text);
+                            if (keys.length > 0) {
+                                console.log('Found item by index:', 0);
+                                refinedText = data.refined_text[keys[0]];
+                            }
+                        }
+                    }
+                } else if (typeof data.refined_text === 'string') {
+                    console.log('Re-eval refined text is a string');
+                    try {
+                        const parsed = JSON.parse(data.refined_text);
+                        console.log('Parsed JSON:', parsed);
+                        refinedText = parsed['Item 1:'] || parsed['Item 1'] || text;
+                    } catch (e) {
+                        console.log('Failed to parse JSON, using as is');
+                        refinedText = data.refined_text;
+                    }
+                }
+                console.log('Final refined text:', refinedText);
+                suggestionTextarea.value = refinedText;
+            }
+            
+            // Update the likelihood and score
+            const likelihoodElement = itemCard.querySelector('.text-sm.font-medium');
+            if (likelihoodElement) {
+                console.log('Updating likelihood with:', {
+                    likelihood: data.success_likelihood,
+                    score: data.clarity_score
+                });
+                const likelihoodClass = getLikelihoodClass(data.success_likelihood);
+                const score = Math.round(data.clarity_score * 100);
+                likelihoodElement.innerHTML = `
+                    <span class="text-sm font-medium mr-2">Success Likelihood:</span>
+                    <span class="px-2 py-1 text-sm font-semibold rounded-full ${likelihoodClass}">
+                        ${data.success_likelihood} (${score}%)
+                    </span>
+                `;
+            }
+            
+            // Update suggestions
+            let itemSuggestions = [];
+            if (Array.isArray(data.suggestions)) {
+                const itemStartIndex = data.suggestions.findIndex(s => s === 'Item 1:');
+                if (itemStartIndex !== -1) {
+                    const nextItemIndex = data.suggestions.findIndex((s, i) => i > itemStartIndex && s.startsWith('Item'));
+                    const endIndex = nextItemIndex !== -1 ? nextItemIndex : data.suggestions.length;
+                    itemSuggestions = data.suggestions.slice(itemStartIndex + 1, endIndex);
+                }
+            }
+            
+            // Update the suggestions section
+            const suggestionsSection = itemCard.querySelector('.mt-3');
+            if (suggestionsSection) {
+                suggestionsSection.innerHTML = `
+                    <p class="text-sm font-medium text-gray-700">Improvement Suggestions:</p>
+                    <ul class="mt-2 pl-5 list-disc text-sm text-gray-600">
+                        ${itemSuggestions.map(suggestion => `<li>${suggestion.replace(/^-\s*/, '')}</li>`).join('')}
+                    </ul>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error re-evaluating item:', error);
+            alert('An error occurred while re-evaluating the item. Please try again.');
+        })
+        .finally(() => {
+            // Restore the item card with updated content
+            const suggestionTextarea = document.querySelector(`#suggestion-${itemId}`);
+            const likelihoodElement = itemCard.querySelector('.text-sm.font-medium');
+            const suggestionsSection = itemCard.querySelector('.mt-3');
+            
+            if (suggestionTextarea && likelihoodElement && suggestionsSection) {
+                // Keep the updated content
+                return;
+            }
+            
+            // If any element is missing, restore the original content
+            itemCard.innerHTML = originalContent;
+        });
+    }
+    
+    // Add form submit handler
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            // If no items are checked, prevent form submission
+            if (!document.querySelector('.accepted-checkbox:checked')) {
+                e.preventDefault();
+                showError('Please accept at least one item before proceeding.');
+                return false;
+            }
+            
+            // Since we're already storing each item when accepted, just proceed
+            // We'll make a final confirmation request to ensure all is saved
+            e.preventDefault();
+            
+            // Create a simple request to confirm everything is saved
+            fetch('/api/confirm-refined-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                },
+                body: JSON.stringify({ confirmed: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect to the next step
+                    window.location.href = "{{ url_for('step5_format') }}";
+                } else {
+                    alert('Could not save your refined text. Please try again.');
+                    nextButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error confirming refined text:', error);
+                alert('An error occurred. Please try again.');
+                nextButton.disabled = false;
+            });
+            
+            // Disable the next button to prevent double submission
+            if (nextButton) {
+                nextButton.disabled = true;
+            }
+            
+            return false;
+        });
+    }
+    
+    // Main initialization function
+    function initialize() {
+        if (window.GeLATO.hasAnalysisRequestBeenSent) {
+            console.log('Analysis request already sent globally, skipping...');
+            return;
+        }
+        
+        console.log('Initializing analysis...');
+        window.GeLATO.hasAnalysisRequestBeenSent = true;
+        
+        // Get request data from data attributes
+        const container = document.querySelector('.max-w-3xl');
+        if (!container) {
+            showError('Could not find the request container. Please refresh the page.');
+            window.GeLATO.hasAnalysisRequestBeenSent = false;
+            return;
+        }
+        
+        try {
+            // Parse the JSON data from data attributes
+            const allItems = container.dataset.allItems ? JSON.parse(container.dataset.allItems) : [];
+            
+            if (allItems.length === 0) {
+                showError('No request items found. Please go back and add some items to your request.');
+                window.GeLATO.hasAnalysisRequestBeenSent = false;
+                return;
+            }
+            
+            const requestData = {
+                administration: container.dataset.administration || '',
+                request_type: container.dataset.requestType || 'document',
+                description: allItems
+            };
+            
+            console.log('Sending analysis request:', requestData);
+            
+            // Send the request
+            fetch('/api/analyze-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                console.log('Analysis response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Analysis received data:', data);
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Update the UI with the analysis results
+                updateAnalysisResults(data);
+            })
+            .catch(error => {
+                console.error('Error in analysis:', error);
+                showError(`An error occurred while analyzing your request: ${error.message}`);
+                window.GeLATO.hasAnalysisRequestBeenSent = false;
+            });
+        } catch (error) {
+            console.error('Error preparing request:', error);
+            showError(`Error preparing the request: ${error.message}`);
+            window.GeLATO.hasAnalysisRequestBeenSent = false;
+        }
+    }
+    
+    // Initialize only once when the DOM is loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize, { once: true });
+    } else {
+        initialize();
+    }
+})();
+</script>
+{% endblock %}
+{% endblock %} 

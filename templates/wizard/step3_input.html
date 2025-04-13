@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.3/dist/forms.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Progress bar -->
+    <div class="mb-8">
+        <div class="relative">
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500" style="width: 42%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span class="font-bold text-indigo-600">Step 3/7</span>
+                <span>Request Description</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step content -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Describe Your Request
+            </h3>
+            <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Please provide detailed information about what you're requesting. You can add multiple items.</p>
+            </div>
+            
+            <form method="POST" class="mt-5" id="request-form">
+                {{ document_form.csrf_token }}
+                
+                {% if session.get('document_request') %}
+                <div class="mb-6">
+                    <h4 class="text-md font-medium text-gray-800 mb-3">Document Requests</h4>
+                    <div class="space-y-6" id="document-items">
+                        {% for document in document_form.documents %}
+                        <div class="border border-gray-200 rounded-lg p-4 document-item">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 item-number">Document Request #{{ loop.index }}</h4>
+                                {% if loop.index > 1 %}
+                                <button type="button" class="text-red-600 hover:text-red-800 text-sm remove-item" onclick="removeDocumentItem(this)">
+                                    Remove
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Document Description</label>
+                                    <div class="mt-1">
+                                        <textarea name="documents-{{ loop.index0 }}-description" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md document-description" placeholder="Describe the document you are requesting...">{{ document.description.data or '' }}</textarea>
+                                    </div>
+                                    {% if document.description.errors %}
+                                        {% for error in document.description.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Document Date (Optional)</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="documents-{{ loop.index0 }}-date" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md document-date" placeholder="YYYY-MM-DD or time period" value="{{ document.date.data or '' }}">
+                                    </div>
+                                    {% if document.date.errors %}
+                                        {% for error in document.date.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="button" id="add-document-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Add Another Document
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if session.get('explanation_request') %}
+                <div class="mb-6">
+                    <h4 class="text-md font-medium text-gray-800 mb-3">Explanation Requests</h4>
+                    <div class="space-y-6" id="explanation-items">
+                        {% for explanation in explanation_form.explanations %}
+                        <div class="border border-gray-200 rounded-lg p-4 explanation-item">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 item-number">Explanation Request #{{ loop.index }}</h4>
+                                {% if loop.index > 1 %}
+                                <button type="button" class="text-red-600 hover:text-red-800 text-sm remove-item" onclick="removeExplanationItem(this)">
+                                    Remove
+                                </button>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Decision Description</label>
+                                    <div class="mt-1">
+                                        <textarea name="explanations-{{ loop.index0 }}-description" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md explanation-description" placeholder="Describe the administrative decision or action you need explanations about...">{{ explanation.description.data or '' }}</textarea>
+                                    </div>
+                                    {% if explanation.description.errors %}
+                                        {% for error in explanation.description.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Decision Date (Optional)</label>
+                                    <div class="mt-1">
+                                        <input type="text" name="explanations-{{ loop.index0 }}-date" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md explanation-date" placeholder="YYYY-MM-DD" value="{{ explanation.date.data or '' }}">
+                                    </div>
+                                    {% if explanation.date.errors %}
+                                        {% for error in explanation.date.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-3">
+                        <button type="button" id="add-explanation-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Add Another Explanation
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-6 flex justify-end">
+                    <button type="submit" name="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Document item functions
+function removeDocumentItem(button) {
+    const item = button.closest('.document-item');
+    item.remove();
+    updateDocumentItemNumbers();
+    updateDocumentItemNames();
+}
+
+function addDocumentItem() {
+    const items = document.querySelectorAll('.document-item');
+    const newIndex = items.length;
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'border border-gray-200 rounded-lg p-4 document-item';
+    
+    newItem.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+            <h4 class="text-sm font-medium text-gray-700 item-number">Document Request #${newIndex + 1}</h4>
+            <button type="button" class="text-red-600 hover:text-red-800 text-sm remove-item" onclick="removeDocumentItem(this)">
+                Remove
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Document Description</label>
+                <div class="mt-1">
+                    <textarea name="documents-${newIndex}-description" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md document-description" placeholder="Describe the document you are requesting..."></textarea>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Document Date (Optional)</label>
+                <div class="mt-1">
+                    <input type="text" name="documents-${newIndex}-date" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md document-date" placeholder="YYYY-MM-DD or time period">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('document-items').appendChild(newItem);
+}
+
+function updateDocumentItemNumbers() {
+    const items = document.querySelectorAll('.document-item');
+    items.forEach((item, index) => {
+        const number = item.querySelector('.item-number');
+        number.textContent = `Document Request #${index + 1}`;
+    });
+}
+
+function updateDocumentItemNames() {
+    const items = document.querySelectorAll('.document-item');
+    items.forEach((item, index) => {
+        const description = item.querySelector('.document-description');
+        const date = item.querySelector('.document-date');
+        
+        description.name = `documents-${index}-description`;
+        date.name = `documents-${index}-date`;
+    });
+}
+
+// Explanation item functions
+function removeExplanationItem(button) {
+    const item = button.closest('.explanation-item');
+    item.remove();
+    updateExplanationItemNumbers();
+    updateExplanationItemNames();
+}
+
+function addExplanationItem() {
+    const items = document.querySelectorAll('.explanation-item');
+    const newIndex = items.length;
+    
+    const newItem = document.createElement('div');
+    newItem.className = 'border border-gray-200 rounded-lg p-4 explanation-item';
+    
+    newItem.innerHTML = `
+        <div class="flex justify-between items-center mb-4">
+            <h4 class="text-sm font-medium text-gray-700 item-number">Explanation Request #${newIndex + 1}</h4>
+            <button type="button" class="text-red-600 hover:text-red-800 text-sm remove-item" onclick="removeExplanationItem(this)">
+                Remove
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Decision Description</label>
+                <div class="mt-1">
+                    <textarea name="explanations-${newIndex}-description" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md explanation-description" placeholder="Describe the administrative decision or action you need explanations about..."></textarea>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Decision Date (Optional)</label>
+                <div class="mt-1">
+                    <input type="text" name="explanations-${newIndex}-date" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md explanation-date" placeholder="YYYY-MM-DD">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('explanation-items').appendChild(newItem);
+}
+
+function updateExplanationItemNumbers() {
+    const items = document.querySelectorAll('.explanation-item');
+    items.forEach((item, index) => {
+        const number = item.querySelector('.item-number');
+        number.textContent = `Explanation Request #${index + 1}`;
+    });
+}
+
+function updateExplanationItemNames() {
+    const items = document.querySelectorAll('.explanation-item');
+    items.forEach((item, index) => {
+        const description = item.querySelector('.explanation-description');
+        const date = item.querySelector('.explanation-date');
+        
+        description.name = `explanations-${index}-description`;
+        date.name = `explanations-${index}-date`;
+    });
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const addDocumentBtn = document.getElementById('add-document-btn');
+    if (addDocumentBtn) {
+        addDocumentBtn.addEventListener('click', addDocumentItem);
+    }
+    
+    const addExplanationBtn = document.getElementById('add-explanation-btn');
+    if (addExplanationBtn) {
+        addExplanationBtn.addEventListener('click', addExplanationItem);
+    }
+});
+</script>
+{% endblock %} 

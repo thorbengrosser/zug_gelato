@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/@tailwindcss/forms@0.5.3/dist/forms.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Progress bar -->
+    <div class="mb-8">
+        <div class="relative">
+            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-indigo-500" style="width: 14%"></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-600">
+                <span class="font-bold text-indigo-600">Step 1/7</span>
+                <span>Administration Selection</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step content -->
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Select the Administration
+            </h3>
+            <div class="mt-2 max-w-xl text-sm text-gray-500">
+                <p>Choose the public administration you want to request information from.</p>
+            </div>
+            
+            <form method="POST" class="mt-5">
+                {{ form.csrf_token }}
+                
+                <div class="space-y-6">
+                    <!-- Selection type radio buttons -->
+                    <div>
+                        {{ form.selection_type.label(class="block text-sm font-medium text-gray-700") }}
+                        <div class="mt-2 space-y-4">
+                            {% for choice in form.selection_type %}
+                            <div class="flex items-center">
+                                {{ choice(class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300") }}
+                                <label for="{{ choice.id }}" class="ml-3 block text-sm font-medium text-gray-700">
+                                    {{ choice.label.text }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Administration selection (shown when 'select' is chosen) -->
+                    <div id="select-section" class="space-y-6">
+                        <div>
+                            {{ form.administration.label(class="block text-sm font-medium text-gray-700") }}
+                            <div class="mt-1">
+                                {{ form.administration(class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md") }}
+                            </div>
+                            {% if form.administration.errors %}
+                                {% for error in form.administration.errors %}
+                                    <p class="mt-2 text-sm text-red-600">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Manual entry fields (shown when 'manual' is chosen) -->
+                    <div id="manual-section" class="space-y-6 hidden">
+                        <div>
+                            {{ form.admin_name.label(class="block text-sm font-medium text-gray-700") }}
+                            <div class="mt-1">
+                                {{ form.admin_name(class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                            </div>
+                        </div>
+
+                        <div>
+                            {{ form.admin_street.label(class="block text-sm font-medium text-gray-700") }}
+                            <div class="mt-1">
+                                {{ form.admin_street(class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-3">
+                                {{ form.admin_postal_code.label(class="block text-sm font-medium text-gray-700") }}
+                                <div class="mt-1">
+                                    {{ form.admin_postal_code(class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                            </div>
+
+                            <div class="col-span-3">
+                                {{ form.admin_city.label(class="block text-sm font-medium text-gray-700") }}
+                                <div class="mt-1">
+                                    {{ form.admin_city(class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    {{ form.submit(class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Select2
+    $('#administration').select2({
+        placeholder: 'Search for an administration...',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Handle radio button changes
+    $('input[name="selection_type"]').change(function() {
+        if ($(this).val() === 'select') {
+            $('#select-section').removeClass('hidden');
+            $('#manual-section').addClass('hidden');
+            $('#administration').prop('required', true);
+            $('.manual-field').prop('required', false);
+        } else {
+            $('#select-section').addClass('hidden');
+            $('#manual-section').removeClass('hidden');
+            $('#administration').prop('required', false);
+            $('.manual-field').prop('required', true);
+        }
+    });
+
+    // Add required class to manual fields
+    $('.manual-field').addClass('required');
+});
+</script>
+{% endblock %}
+{% endblock %} 

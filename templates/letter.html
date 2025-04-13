@@ -1,0 +1,76 @@
+<div class="letter-container" style="font-family: 'Times New Roman', Times, serif; line-height: 1.5; max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div class="sender-info" style="text-align: right; margin-bottom: 40px;">
+        <p>{{ user_info.name }}<br/>
+        {{ user_info.street_address }}<br/>
+        {{ user_info.postal_code }} {{ user_info.city }}<br/>
+        {{ user_info.email }}<br/>
+        {% if user_info.phone %}
+        <br/>Tel.: {{ user_info.phone }}</p>
+        {% endif %}
+    </div>
+
+    <div class="recipient-info" style="margin-bottom: 40px;">
+        <p>{{ administration.name_fr }}</p>
+        {% if administration.address %}
+            <p style="white-space: pre-line;">{{ administration.address }}</p>
+        {% endif %}
+    </div>
+
+    <div class="date" style="text-align: right; margin-bottom: 40px;">
+        <p>{{ current_date }}</p>
+    </div>
+
+    <div class="subject" style="font-weight: bold; margin-bottom: 20px;">
+        <p>Objet : Demande d'accès à l'information – Loi du 14 septembre 2018 relative à une administration transparente et ouverte</p>
+    </div>
+
+    <div class="content" style="margin-bottom: 40px;">
+        <p>Madame, Monsieur,</p>
+
+        <p style="margin-bottom: 1em;">
+            Conformément à la loi du 14 septembre 2018 relative à une administration transparente et ouverte, je vous adresse la présente demande d'accès à l'information. À ce titre, je sollicite :
+        </p>
+
+        {% if requested_documents %}
+        <p style="margin-bottom: 1em;">
+            <strong>La communication du/des document(s) suivant(s) :</strong>
+        </p>
+        <div style="margin-bottom: 1em;">
+            {% for document in requested_documents %}
+            <p style="margin-left: 20px; margin-bottom: 0.5em;">• {{ document }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if requested_explanations %}
+        <p style="margin-bottom: 1em;">
+            <strong>Des explications concernant :</strong>
+        </p>
+        <div style="margin-bottom: 1em;">
+            {% for explanation in requested_explanations %}
+            <p style="margin-left: 20px; margin-bottom: 0.5em;">• {{ explanation }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <p style="margin-bottom: 1em;">
+            Je vous prie de me fournir ces informations sous la forme la plus appropriée. Si les documents demandés existent en version numérique, je privilégie une transmission électronique à l'adresse courriel indiquée ci-dessus, pour plus de facilité. Le cas échéant, je suis disposé(e) à accepter un autre mode de consultation ou de copie, conformément aux dispositions de la loi.
+        </p>
+
+        <p style="margin-bottom: 1em;">
+            Afin de faciliter le traitement, j'ai veillé à formuler une demande aussi précise que possible. Si toutefois certains éléments vous semblent trop généraux ou imprécis, je reste à votre disposition pour apporter des précisions. Je vous rappelle qu'en vertu de la loi précitée, en cas de demande formulée de manière trop générale, il vous incombe de me demander des clarifications (plutôt que de rejeter la demande), ce qui suspend le délai de traitement jusqu'à réception d'une demande plus précise.
+        </p>
+
+        <p style="margin-bottom: 1em;">
+            Enfin, conformément à l'article 5 de la loi du 14 septembre 2018, je vous rappelle que vous êtes tenu de répondre dans un délai d'un mois à compter de la réception de la présente demande. Ce délai peut, si nécessaire, être prolongé d'un mois supplémentaire dans les cas exceptionnels prévus par la loi. Je vous remercie donc de bien vouloir me communiquer les informations demandées au plus tard dans un délai d'un mois, ou de me faire savoir, le cas échéant, pour quel motif légal vous ne pourriez pas y donner suite intégralement.
+        </p>
+
+        <p style="margin-bottom: 1em;">
+            Dans l'attente de votre réponse, je vous prie d'agréer, Madame, Monsieur, l'expression de ma considération distinguée.
+        </p>
+    </div>
+
+    <div class="signature" style="margin-top: 100px;">
+        <p>__________________________<br>{{ user_info.name }}</p>
+    </div>
+</div>
