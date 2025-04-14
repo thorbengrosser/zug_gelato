@@ -1,6 +1,7 @@
 import os
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+import json
+import sys
+from mistralai import Mistral
 
 class MistralAnalyzer:
     def __init__(self):
@@ -8,8 +9,16 @@ class MistralAnalyzer:
         self.api_key = os.getenv('MISTRAL_API_KEY')
         if not self.api_key:
             raise ValueError("MISTRAL_API_KEY environment variable is required")
-        self.client = MistralClient(api_key=self.api_key)
-        self.model = "mistral-medium"  # or another appropriate model
+        self.client = Mistral(api_key=self.api_key)
+        self.agent_id = "ag:0dd6ad20:20250414:foia-checker:2ac12c27"
+
+    def _debug_print(self, message, data=None):
+        """Print debug information in a consistent format."""
+        print("\n=== DEBUG ===", file=sys.stderr)
+        print(message, file=sys.stderr)
+        if data:
+            print(json.dumps(data, indent=2), file=sys.stderr)
+        print("=============\n", file=sys.stderr)
 
     def analyze_request(self, request_data):
         """
@@ -26,102 +35,47 @@ class MistralAnalyzer:
                 - clarity_score (float): 0-1 score of request clarity
                 - success_likelihood (str): High/Good/Moderate assessment
                 - suggestions (list): List of improvement suggestions
-                - refined_text (str): Improved version of the request in legal French
+                - refined_text (dict): Improved version of the request in legal French
         """
         try:
-            # Construct the prompt for request analysis
-            system_prompt = """You are an expert in Luxembourg's Freedom of Information law, 
-            specifically the law of September 14, 2018 on transparent and open administration.
-
-            Analyze the following request and provide a JSON response with:
-            1. A clarity score (0-1)
-            2. A success likelihood estimate (High/Good/Moderate)
-            3. Improvement suggestions for each item in English
-            4. A refined version of just the specific line item in legal French
-
-            To be compliant and effective, each item should:
-            - Explicitly specify the requested documents or required explanation
-            - Clearly reference relevant details (dates, titles, subjects)
-            - Use formal and polite language appropriate for official correspondence
-            - Be concise but sufficiently complete to allow easy identification by the administration
-            - Comply with Luxembourg legal requirements
-            - Avoid overly broad or vague requests
-            - Include appropriate temporal references
-            - Precisely identify the documents or information
-
-            IMPORTANT: For the refined_text field, if there are multiple items, use a JSON object with keys for each item.
-            If there is only one item, you can use a string.
+            # Format the request items for analysis
+            items = {}
+            for i, item in enumerate(request_data['description'], 1):
+                item_key = f"Item {i}:"
+                items[item_key] = {
+                    "description": item.get('description', ''),
+                    "date": item.get('date', '')
+                }
             
-            For example, with multiple items:
-            
-            "refined_text": {
-                "Item 1:": "Rapport intitulé 'Test Doc 1' daté du 25 juin",
-                "Item 2:": "Document intitulé 'Test Doc 2'"
+            # Create a clean request object
+            request_obj = {
+                "administration": request_data['administration'],
+                "request_type": request_data['request_type'],
+                "items": items
             }
             
-            Or with a single item:
+            # Convert to JSON string for the agent
+            request_json = json.dumps(request_obj, indent=2)
+            self._debug_print("Sending request to agent:", request_obj)
             
-            "refined_text": "Rapport intitulé 'Test Doc' daté du 25 juin"
-
-            The refined_text should be direct references to documents, starting with document types or names.
-            DO NOT start with "Je souhaite" or similar phrases.
-
-            For suggestions, ALWAYS provide at least 3-4 specific improvement suggestions for each item, focusing on:
-            - Adding missing details (names, dates, specific document types)
-            - Improving clarity and precision
-            - Making the request more legally compliant
-            - Using more formal language
-
-            Respond with a JSON object in this exact format:
-            {
-                "clarity_score": 0.5,
-                "success_likelihood": "High",
-                "suggestions": [
-                    "Item 1:",
-                    "- Specify the exact type of document requested",
-                    "- Include the judge's full name",
-                    "- Add a specific date range",
-                    "- Use formal language"
-                ],
-                "refined_text": {
-                    "Item 1:": "Dossier administratif relatif au licenciement du juge [nom complet], survenu en [date précise], comprenant la décision de licenciement, les rapports d'enquête et toute correspondance administrative y relative."
-                }
-            }"""
-            
-            # Format the request items for analysis
-            items_text = ""
-            for i, item in enumerate(request_data['description'], 1):
-                items_text += f"\nItem {i}:\n"
-                if item.get('description'):
-                    items_text += f"Description: {item['description']}\n"
-                if item.get('date'):
-                    items_text += f"Date: {item['date']}\n"
-            
-            user_prompt = f"""
-            Administration: {request_data['administration']}
-            Request Type: {request_data['request_type']}
-            Request Items:{items_text}
-            """
-            
-            messages = [
-                ChatMessage(role="system", content=system_prompt),
-                ChatMessage(role="user", content=user_prompt)
-            ]
-            
-            # Get analysis from Mistral
-            response = self.client.chat(
-                model=self.model,
-                messages=messages
+            # Use the agent to analyze the request
+            response = self.client.agents.complete(
+                agent_id=self.agent_id,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": request_json
+                    }
+                ]
             )
             
             # Parse the response
             if hasattr(response, 'choices') and response.choices:
                 content = response.choices[0].message.content
-                print("Raw response content:", content)  # Debug print
+                self._debug_print("Raw response from agent:", {"content": content})
                 
                 try:
                     # Try to parse the response as JSON
-                    import json
                     import re
                     
                     # Clean up the content to ensure it's valid JSON
@@ -153,73 +107,20 @@ class MistralAnalyzer:
                         if field not in analysis:
                             raise ValueError(f"Missing required field: {field}")
                     
-                    # Normalize suggestions to ensure it's a flat list of strings
-                    if 'suggestions' in analysis and isinstance(analysis['suggestions'], list):
-                        original_suggestions = analysis['suggestions']
-                        flat_suggestions = []
-                        for item in original_suggestions:
-                            if isinstance(item, str):
-                                flat_suggestions.append(item.strip())
-                            elif isinstance(item, dict):
-                                # Handle the observed error format: [{"Item 1:": ["- suggestion 1", ...]}, ...]
-                                for key, value in item.items():
-                                    flat_suggestions.append(str(key).strip()) # Add the item key ("Item 1:")
-                                    if isinstance(value, list):
-                                        # Add the actual suggestions (which should be strings)
-                                        flat_suggestions.extend([str(s).strip() for s in value if isinstance(s, str) and s.strip()])
-                                    elif isinstance(value, str) and value.strip():
-                                        flat_suggestions.append(value.strip())
-                        analysis['suggestions'] = [s for s in flat_suggestions if s] # Filter out empty strings
-
-                    # Validate suggestions format after normalization
-                    if not (isinstance(analysis.get('suggestions'), list) and
-                            all(isinstance(s, str) for s in analysis.get('suggestions', []))):
-                        print("Suggestions format normalization failed or resulted in non-string list. Defaulting.")
-                        analysis['suggestions'] = ['Error processing suggestions format. Please review manually.']
-                    
-                    # Ensure refined_text is properly formatted
-                    if isinstance(analysis['refined_text'], str):
-                        # If it's a string, try to parse it as JSON
-                        try:
-                            parsed = json.loads(analysis['refined_text'])
-                            if isinstance(parsed, dict):
-                                analysis['refined_text'] = parsed
-                            else:
-                                # If it's not a dict, wrap it in a dict with Item 1
-                                analysis['refined_text'] = {'Item 1:': analysis['refined_text']}
-                        except json.JSONDecodeError:
-                            # If parsing fails, wrap it in a dict with Item 1
-                            analysis['refined_text'] = {'Item 1:': analysis['refined_text']}
-                    elif not isinstance(analysis['refined_text'], dict):
-                        # If it's not a string or dict, convert to dict
-                        analysis['refined_text'] = {'Item 1:': str(analysis['refined_text'])}
-                    
-                    # Ensure all item keys are properly formatted
-                    if isinstance(analysis['refined_text'], dict):
-                        formatted_refined_text = {}
-                        for key, value in analysis['refined_text'].items():
-                            # Clean up the key
-                            clean_key = key.strip()
-                            if not clean_key.startswith('Item'):
-                                clean_key = f'Item {clean_key}:'
-                            elif not clean_key.endswith(':'):
-                                clean_key = f'{clean_key}:'
-                            formatted_refined_text[clean_key] = value.strip()
-                        analysis['refined_text'] = formatted_refined_text
-                    
+                    self._debug_print("Parsed analysis:", analysis)
                     return analysis
                 except json.JSONDecodeError as e:
-                    print(f"Failed to parse JSON response: {e}, falling back to text parsing")
+                    self._debug_print("Failed to parse JSON response", {"error": str(e)})
                     return self._parse_analysis(content)
                 except Exception as e:
-                    print(f"Error parsing response: {e}")
+                    self._debug_print("Error parsing response", {"error": str(e)})
                     return self._parse_analysis(content)
             else:
-                print("Unexpected response format:", response)
+                self._debug_print("Unexpected response format", {"response": str(response)})
                 raise ValueError("Unexpected response format from Mistral API")
                 
         except Exception as e:
-            print(f"Error in analyze_request: {e}")
+            self._debug_print("Error in analyze_request", {"error": str(e)})
             return {
                 'clarity_score': 0.5,
                 'success_likelihood': 'Moderate',
@@ -349,10 +250,6 @@ class MistralAnalyzer:
         Returns:
             str: Generated French text
         """
-        system_prompt = """You are an expert in writing formal French FOIA requests for Luxembourg administrations.
-        Generate a professional and legally compliant request text in French.
-        Use formal language and appropriate administrative terminology."""
-        
         user_prompt = f"""
         Generate a {template_type} FOIA request in French with these details:
         Administration: {request_data['administration']}
@@ -361,14 +258,18 @@ class MistralAnalyzer:
         Response Format: {request_data.get('response_format', 'email')}
         """
         
-        messages = [
-            ChatMessage(role="system", content=system_prompt),
-            ChatMessage(role="user", content=user_prompt)
-        ]
-        
-        response = self.client.chat(
-            model=self.model,
-            messages=messages
+        # Use the agent to generate the French text
+        response = self.client.agents.complete(
+            agent_id=self.agent_id,
+            messages=[
+                {
+                    "role": "user",
+                    "content": user_prompt
+                }
+            ]
         )
         
-        return response.messages[0].content.strip() 
+        if hasattr(response, 'choices') and response.choices:
+            return response.choices[0].message.content.strip()
+        else:
+            raise ValueError("Unexpected response format from Mistral API") 

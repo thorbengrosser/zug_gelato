@@ -26,7 +26,10 @@ def load_administrations():
     json_path = os.path.join(app.static_folder, 'data', 'admin-lux.json')
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    return [(admin['Name'], admin['Name']) for admin in data if admin['Name']]
+    # Store full admin data in a dictionary for later use
+    app.admin_data = {admin['Name']: admin for admin in data if admin['Name']}
+    # Return only names for the select box
+    return [(name, name) for name in app.admin_data.keys()]
 
 @app.route('/')
 def index():
@@ -41,12 +44,15 @@ def step1_admin():
     
     if form.validate_on_submit():
         if form.selection_type.data == 'select':
-            session['administration'] = form.administration.data
-            session['admin_name'] = form.administration.data
-            session['admin_street'] = ''
-            session['admin_postal_code'] = ''
-            session['admin_city'] = ''
-            session['admin_address'] = form.administration.data
+            # Get the full administration data from the stored dictionary
+            selected_admin = app.admin_data.get(form.administration.data)
+            if selected_admin:
+                session['administration'] = selected_admin['Name']
+                session['admin_name'] = selected_admin['Name']
+                session['admin_street'] = selected_admin['Address']
+                session['admin_postal_code'] = selected_admin['Postal Code']
+                session['admin_city'] = selected_admin['City']
+                session['admin_address'] = f"{selected_admin['Address']}\n{selected_admin['Postal Code']} {selected_admin['City']}"
         else:
             session['administration'] = 'manual'
             session['admin_name'] = form.admin_name.data

@@ -11,9 +11,11 @@ GeLATO (Generator for "Loi du 14 septembre 2018 relative à une administration t
 - 🧙‍♂️ User-friendly wizard interface
 - 🤖 AI-powered request analysis and refinement using Mistral AI
 - 📄 Professional PDF generation in French
-- 🏛️ Administration autocomplete
+- 🏛️ Complete list of Luxembourg administrative bodies
 - 📊 Request success likelihood estimation
 - 🔒 Anonymous request storage for statistics
+- ❓ Comprehensive FAQ section
+- 🛡️ Updated Privacy Policy with tracking options
 - 🐳 Docker support for easy deployment
 
 ## Prerequisites
@@ -102,12 +104,15 @@ zug_gelato/
 │   ├── css/
 │   │   └── style.css
 │   ├── js/
-│   │   └── main.js
+│   │   ├── main.js
+│   │   └── trackers.js
 │   └── data/
 │       └── admin-lux.json
 ├── templates/
 │   ├── base.html
 │   ├── index.html
+│   ├── faq.html
+│   ├── privacy.html
 │   ├── admin/
 │   │   ├── login.html
 │   │   ├── requests.html
@@ -124,7 +129,7 @@ zug_gelato/
 │   ├── request.py
 │   └── administration.py
 ├── utils/
-│   ├── mistral.py
+│   ├── mistral_agent.py
 │   └── pdf_generator.py
 ├── migrations/
 ├── instance/
@@ -140,17 +145,24 @@ zug_gelato/
 
 ### Adding New Administrations
 
-To add new administrations to the database, you can:
+The application now includes a complete list of Luxembourg administrative bodies. To update the list:
 
-1. Modify the seed data in `models/administration.py`
+1. Modify the data in `static/data/admin-lux.json`
 2. Run the seeding command:
 ```bash
 flask seed-administrations
 ```
 
-### Customizing Templates
+### AI Integration
 
-French letter templates can be customized in the `utils/mistral.py` file by modifying the prompt templates.
+The application uses Mistral AI for request analysis and refinement. The AI agent is configured in `utils/mistral_agent.py` and can be customized by modifying the agent configuration.
+
+### Privacy and Tracking
+
+The application includes a configurable tracking system. To add or modify tracking scripts:
+
+1. Edit `static/js/trackers.js`
+2. Update the Privacy Policy in `templates/privacy.html`
 
 ## Contributing
 

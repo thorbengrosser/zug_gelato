@@ -17,6 +17,20 @@
         </a>
     </div>
 
+    <!-- FAQ Arrow Pointer -->
+    <div class="mt-10 flex flex-col items-center">
+        <div class="text-center">
+            <div class="inline-flex items-center space-x-2">
+                <p class="text-xl text-gray-600">Got questions? Read our FAQ</p>
+                <div class="animate-bounce">
+                    <svg class="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Features Grid -->
     <div class="mt-20 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         <!-- Feature 1 -->
@@ -71,4 +85,221 @@
         </div>
     </div>
 </div>
+
+<!-- FAQ Section -->
+<div class="max-w-3xl mx-auto mt-20 text-left">
+    <button id="faq-toggle" class="w-full text-left px-6 py-3 border border-gray-300 rounded-md shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <div class="flex justify-between items-center">
+            <span>Frequently Asked Questions (FAQ) – GeLATO</span>
+            <svg id="faq-arrow" class="h-5 w-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+        </div>
+    </button>
+    
+    <div id="faq-content" class="hidden mt-4 px-6 py-4 bg-white rounded-md shadow">
+        <div class="space-y-12">
+            <!-- About the Tool -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">About the Tool</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">What is GeLATO?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            GeLATO (Generator for "Loi du 14 septembre 2018 relative à une administration transparente et ouverte") is a free, user-friendly tool that helps you create Freedom of Information (FOIA) requests to public authorities in Luxembourg.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Is GeLATO free to use?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes, completely. There is no cost to use GeLATO or generate your request letter.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Who can use this tool?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Anyone. You do not need to be a resident of Luxembourg or a legal expert to use GeLATO.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Can I use GeLATO even if I don't live in Luxembourg?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. Luxembourg's FOIA law grants access to anyone, regardless of nationality or place of residence.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">In which languages is the tool available?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            The interface is currently in English. The final request letter is always generated in French, as required by most administrations.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">How It Works</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">What happens after I generate my FOIA request?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            You'll receive a ready-to-send PDF version of your letter, along with instructions on how to send it to the appropriate administration.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Do I need to send the letter myself?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. GeLATO provides the letter, but you are responsible for sending it via email or postal mail.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Does GeLATO submit the request on my behalf?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            No. You are in control of when and how the request is submitted. We simply help you craft a strong and valid request.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">How long does it take to get a response from the administration?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Public bodies must respond within one month of receiving your request. In exceptional cases, they may extend this by another month.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Can I request multiple documents in one letter?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. You can list several documents or explanation requests in a single letter. GeLATO helps you format them correctly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Questions -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">Legal Questions</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">What kind of information can I request under the Luxembourg FOIA law?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            You can request access to administrative documents or explanations about decisions or actions taken by public bodies.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Which administrations are covered by the law?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            All Luxembourgish public institutions including ministries, municipalities, public agencies, and bodies exercising public authority.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Are there any types of information I can't access?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. Certain documents are excluded, such as those involving personal data, national security, judicial matters, or business secrets.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">What if the administration doesn't reply within one month?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            You can follow up using a reminder letter. If the delay persists, you may file a complaint with the National Commission for Access to Documents (CNAD).
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Is there a risk that my request gets rejected?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes, but GeLATO helps you write a clear, compliant, and reasonable request, increasing your chances of success.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data & Privacy -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">Data & Privacy</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Is my personal data safe with GeLATO?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. We follow strict GDPR-compliant practices, use encrypted connections, and never sell or share your personal data.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">What data do you store, and for how long?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            We store anonymized request content for 5 years. Personal data is deleted after 1 year. Technical logs are deleted after 30 days.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Do you use cookies or tracking tools?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            We only use essential session cookies and Matomo for anonymous usage statistics. No third-party trackers are involved.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Will my request be shared with anyone else?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Never without your consent. If you opt in, we may share anonymized request data with researchers or journalists.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Can I delete my data or opt out after using the tool?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. Just email us at <a href="mailto:info@zug.lu" class="text-indigo-600 hover:text-indigo-500">info@zug.lu</a> with your request, and we'll remove your data.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features & AI -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">Features & AI</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">How does the AI help improve my request?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            We use a European large language model (LLM) to review your draft and suggest improvements to make your request more precise and compliant.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Who operates the AI system?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            We use Mistral, a trusted European AI company. Your data stays within the EU and is not used to train their models.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Is my data used to train the AI model?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            No. Your data is processed only for the purpose of helping you refine your request and is not reused in training.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other -->
+            <div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-6 pb-2 border-b border-gray-200">Other</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">Can I follow up on a request I submitted?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Yes. GeLATO provides templates and reminders for follow-ups if you don't receive a response in time.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-medium text-gray-800">How can I contact you if I have questions?</h4>
+                        <p class="mt-2 text-gray-600 leading-relaxed">
+                            Email us at <a href="mailto:info@zug.lu" class="text-indigo-600 hover:text-indigo-500">info@zug.lu</a> and we'll be happy to help.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('faq-toggle').addEventListener('click', function() {
+    const content = document.getElementById('faq-content');
+    const arrow = document.getElementById('faq-arrow');
+    content.classList.toggle('hidden');
+    arrow.classList.toggle('rotate-180');
+});
+</script>
 {% endblock %} 

@@ -36,7 +36,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir "mistralai>=0.0.21"
 
 # Copy the rest of the application
 COPY . .
@@ -50,9 +52,7 @@ EXPOSE 5123
 # Set environment variables
 ENV FLASK_APP=app.py
 ENV FLASK_DEBUG=0
-ENV PYTHONPATH=/app
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
+ENV PYTHONUNBUFFERED=1
 
-# Run the application with gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5123", "app:app"] 
+# Run the application with gunicorn and proper logging
+CMD ["gunicorn", "--bind", "0.0.0.0:5123", "--access-logfile", "-", "--error-logfile", "-", "--log-level", "debug", "app:app"] 
