@@ -9,11 +9,6 @@ from forms import (
     AdminLoginForm
 )
 from datetime import datetime, timedelta
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
-from reportlab.lib.units import inch
 from io import BytesIO
 import html2text
 from utils.pdf_generator import generate_foia_pdf

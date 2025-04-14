@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-3">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-body text-center">
-                    <h2 class="card-title mb-4">Request Letter Generated Successfully!</h2>
-                    <div class="mb-4">
-                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                <div class="card-body">
+                    <div class="success-header text-center">
+                        <div class="check-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h2 class="mt-2">✅ Your FOIA Request Is Ready!</h2>
                     </div>
-                    <p class="card-text mb-4">Your FOIA request letter has been generated and is ready to download.</p>
-                    <div class="alert alert-info">
-                        <p class="mb-0">You can now download and send this letter to the administration to make your request.</p>
-                    </div>
-                    <div class="mt-4 d-flex justify-content-center">
+
+                    <div class="download-section text-center mb-4">
                         <a href="{{ url_for('download_confirmed_pdf') }}" class="download-tile">
                             <div class="tile-content">
                                 <div class="icon-wrapper">
@@ -27,7 +26,70 @@
                             </div>
                         </a>
                     </div>
-                    <div class="mt-4">
+
+                    <!-- How-to Guide Section -->
+                    <div class="how-to-guide">
+                        <div class="steps-container">
+                            <div class="step-card" data-step="1">
+                                <div class="step-number">1</div>
+                                <div class="step-icon">📬</div>
+                                <div class="step-content">
+                                    <h4>Send your letter</h4>
+                                    <p>Email or mail it to the administration you selected.</p>
+                                </div>
+                            </div>
+                            <div class="step-card" data-step="2">
+                                <div class="step-number">2</div>
+                                <div class="step-icon">📅</div>
+                                <div class="step-content">
+                                    <h4>Set a reminder</h4>
+                                    <p>Follow up after 1 month if needed.</p>
+                                </div>
+                            </div>
+                            <div class="step-card" data-step="3">
+                                <div class="step-number">3</div>
+                                <div class="step-icon">🗃️</div>
+                                <div class="step-content">
+                                    <h4>Keep a copy</h4>
+                                    <p>Save your PDF for future reference.</p>
+                                </div>
+                            </div>
+                            <div class="step-card" data-step="4">
+                                <div class="step-number">4</div>
+                                <div class="step-icon">💬</div>
+                                <div class="step-content">
+                                    <h4>Share your experience</h4>
+                                    <p>Help us improve the service.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="hero-badge">
+                                <span class="badge-icon">🎉</span>
+                                <span class="badge-text">You're officially a transparency hero!</span>
+                            </div>
+                            
+                            <div class="social-sharing mt-4">
+                                <p class="text-muted mb-2">Share your achievement:</p>
+                                <div class="social-buttons">
+                                    <a href="https://bsky.app/profile/zug.lu/post/new?text=🔍 Just submitted my first LATO request! Taking a step towards transparency in Luxembourg with @zug.lu. Join me in making our administration more open! 🌟 #LATO #Transparency" target="_blank" class="social-button bluesky">
+                                        <i class="fab fa-twitter"></i>
+                                        <span>Share on Bluesky</span>
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?text=🔍 Just submitted my first LATO request! Taking a step towards transparency in Luxembourg with @zug_lu. Join me in making our administration more open! 🌟 #LATO #Transparency" target="_blank" class="social-button twitter">
+                                        <i class="fab fa-twitter"></i>
+                                        <span>Share on Twitter</span>
+                                    </a>
+                                    <a href="https://www.instagram.com/zug_lu" target="_blank" class="social-button instagram">
+                                        <i class="fab fa-instagram"></i>
+                                        <span>Follow on Instagram</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
                         <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Return to Home</a>
                     </div>
                 </div>
@@ -37,11 +99,31 @@
 </div>
 
 <style>
+.success-header {
+    padding: 0.75rem 0;
+}
+
+.check-circle {
+    width: 64px;
+    height: 64px;
+    background: #4f46e5;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.check-circle i {
+    color: white;
+    font-size: 2rem;
+}
+
 .download-tile {
     display: inline-block;
     background-color: #4f46e5;
     border-radius: 12px;
-    padding: 1.5rem 2.5rem;
+    padding: 1.25rem 2rem;
     text-decoration: none;
     color: white;
     transition: all 0.3s ease;
@@ -66,15 +148,15 @@
 .icon-wrapper {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .icon-wrapper i {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
 }
 
 .text-wrapper {
@@ -91,6 +173,193 @@
     margin: 0;
     font-size: 0.875rem;
     opacity: 0.8;
+}
+
+/* How-to Guide Styles */
+.how-to-guide {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.steps-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.step-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+    position: relative;
+}
+
+.step-number {
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    background: #4f46e5;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.step-card:nth-child(1) { animation-delay: 0.1s; }
+.step-card:nth-child(2) { animation-delay: 0.2s; }
+.step-card:nth-child(3) { animation-delay: 0.3s; }
+.step-card:nth-child(4) { animation-delay: 0.4s; }
+
+.step-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-icon {
+    font-size: 1.5rem;
+    background: #f0f9ff;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-content {
+    flex: 1;
+    text-align: left;
+}
+
+.step-content h4 {
+    margin: 0 0 0.25rem 0;
+    color: #1e40af;
+    font-size: 1rem;
+}
+
+.step-content p {
+    margin: 0;
+    color: #4b5563;
+    font-size: 0.875rem;
+}
+
+.hero-badge {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    animation: pulse 2s infinite;
+}
+
+.badge-icon {
+    font-size: 1.25rem;
+}
+
+.badge-text {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.social-sharing {
+    margin-top: 1.5rem;
+}
+
+.social-buttons {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.social-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.social-button:hover {
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+    filter: brightness(110%);
+}
+
+.social-button.bluesky {
+    background: #0085FF;
+}
+
+.social-button.twitter {
+    background: #1DA1F2;
+}
+
+.social-button.instagram {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .steps-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .social-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .social-button {
+        width: 200px;
+        justify-content: center;
+    }
 }
 </style>
 {% endblock %} 
