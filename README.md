@@ -16,7 +16,7 @@ GeLATO is a user-friendly web application that helps citizens generate Freedom o
 
 - **Backend**: Python with Flask
 - **Frontend**: HTML, Tailwind CSS, JavaScript
-- **Database**: MySQL
+- **Database**: SQLite
 - **AI Analysis**: Mistral AI
 - **PDF Generation**: Custom PDF generator
 - **Analytics**: Matomo
@@ -35,7 +35,7 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
-3. Build and start the containers:
+3. Build and start the container:
 ```bash
 docker-compose up --build -d
 ```
@@ -85,10 +85,6 @@ The application requires the following environment variables:
 - `FLASK_DEBUG`: Development or production environment (0 for production)
 - `SECRET_KEY`: Flask secret key
 - `MISTRAL_API_KEY`: API key for Mistral AI analysis
-- `DB_ROOT_PASSWORD`: MySQL root password
-- `DB_NAME`: Database name
-- `DB_USER`: Database user
-- `DB_PASSWORD`: Database password
 - `ADMIN_PASSWORD`: Password for admin interface
 
 ## Usage

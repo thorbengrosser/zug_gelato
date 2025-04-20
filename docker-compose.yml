@@ -10,12 +10,10 @@ services:
       - FLASK_DEBUG=0
       - SECRET_KEY=${SECRET_KEY}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - DATABASE_URL=mysql+pymysql://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
-    depends_on:
-      - db
-    restart: unless-stopped
+      - DATABASE_URL=sqlite:///instance/gelato.db
     volumes:
       - ./instance:/app/instance
+    restart: unless-stopped
     networks:
       - app-network
 
