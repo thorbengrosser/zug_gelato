@@ -10,14 +10,8 @@ services:
       - FLASK_DEBUG=0
       - SECRET_KEY=${SECRET_KEY}
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
-      - DATABASE_URL=sqlite:///instance/gelato.db
+      - DATABASE_URL=sqlite:///app/instance/gelato.db
     volumes:
       - ./instance:/app/instance:rw
+      - ./migrations:/app/migrations:rw
     restart: unless-stopped
-
-volumes:
-  mysql_data:
-
-networks:
-  app-network:
-    driver: bridge 

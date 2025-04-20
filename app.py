@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///instance/gelato.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///app/instance/gelato.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
