@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}GeLATO - Luxembourg FOIA Request Generator{% endblock %}</title>
     
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="GeLATO - Luxembourg FOIA Request Generator">
+    <meta property="og:description" content="Easily request public information from Luxembourgish administrations. Generate FOIA requests compliant with Luxembourg's transparency law.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:image" content="{{ url_for('static', filename='images/og-image.png') }}">
+    <meta property="og:site_name" content="GeLATO">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="GeLATO - Luxembourg FOIA Request Generator">
+    <meta name="twitter:description" content="Easily request public information from Luxembourgish administrations. Generate FOIA requests compliant with Luxembourg's transparency law.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/og-image.png') }}">
+    
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
