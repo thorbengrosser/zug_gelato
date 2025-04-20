@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5123:5123"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=0
+      - SECRET_KEY=${SECRET_KEY}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
+      - DATABASE_URL=mysql+pymysql://${DB_USER}:${DB_PASSWORD}@db/${DB_NAME}
+    depends_on:
+      - db
+    restart: unless-stopped
+    volumes:
+      - ./instance:/app/instance
+    networks:
+      - app-network
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge 
