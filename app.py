@@ -18,6 +18,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
 db = SQLAlchemy(app)
+
+# Import models
+from models.request import Request
+from models.administration import Administration
+
+# Initialize migrations after models are imported
 migrate = Migrate(app, db)
 csrf = CSRFProtect(app)
 
