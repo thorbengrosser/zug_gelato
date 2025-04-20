@@ -12,7 +12,7 @@ services:
       - MISTRAL_API_KEY=${MISTRAL_API_KEY}
       - DATABASE_URL=sqlite:///instance/gelato.db
     volumes:
-      - ./instance:/app/instance
+      - ./instance:/app/instance:rw
     restart: unless-stopped
 
 volumes:

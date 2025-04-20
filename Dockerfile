@@ -43,8 +43,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy the rest of the application
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p instance
+# Create necessary directories with proper permissions
+RUN mkdir -p instance && \
+    chmod 777 instance
 
 # Expose port 5123
 EXPOSE 5123
