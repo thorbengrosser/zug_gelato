@@ -183,13 +183,24 @@
     <!-- Footer -->
     <footer class="site-footer mt-auto">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-col items-center space-y-4">
                 <p class="text-center text-gray-500 text-sm">
                     GeLATO - Generator for "Loi du 14 septembre 2018 relative à une administration transparente et ouverte"
                 </p>
-                <a href="{{ url_for('admin_requests') }}" class="text-gray-600 hover:text-indigo-600">
-                    <i class="fas fa-cog mr-1"></i>Admin
-                </a>
+                <div class="flex items-center space-x-4">
+                    <a href="https://github.com/thorbengrosser/zug_gelato" target="_blank" class="text-gray-600 hover:text-indigo-600 flex items-center">
+                        <i class="fab fa-github mr-1"></i>Help us improve GeLATO
+                    </a>
+                    <a href="mailto:gelato@zug.lu?subject=GeLATO%20Error%20Report&body=Please%20describe%20the%20error%20you%20encountered%3A%0A%0A%0A%0AWhat%20were%20you%20trying%20to%20do%3F%0A%0A%0A%0ABrowser%20and%20Operating%20System%3A%0A%0A%0A%0AAdditional%20information%3A" class="text-gray-600 hover:text-indigo-600 flex items-center">
+                        <i class="fas fa-bug mr-1"></i>Report an Error
+                    </a>
+                    <a href="{{ url_for('admin_requests') }}" class="text-gray-600 hover:text-indigo-600">
+                        <i class="fas fa-cog mr-1"></i>Admin
+                    </a>
+                </div>
+                <p class="text-center text-gray-400 text-xs">
+                    Vibe coded with ❤️ in Luxembourg
+                </p>
             </div>
         </div>
     </footer>
