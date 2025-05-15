@@ -1451,8 +1451,8 @@
     {
       "Type": "",
       "Name": "Centre de gestion du personnel et de l'organisation de l'État",
-      "Address": "2-4, boulevard Roosevelt",
-      "Postal Code": 2450,
+      "Address": "10, Avenue John F. Kennedy ",
+      "Postal Code": 1855,
       "City": "Luxembourg",
       "E-Mail": "cgpo@etat.lu",
       "Confidence": 95
@@ -2603,8 +2603,8 @@
     {
       "Type": "",
       "Name": "Institut national d'administration publique",
-      "Address": "2-4, rue Pierre Hentges",
-      "Postal Code": 1724,
+      "Address": "10, Avenue John F. Kennedy",
+      "Postal Code": 1855,
       "City": "Luxembourg",
       "E-Mail": "contact@ina.public.lu",
       "Confidence": 95
@@ -2990,8 +2990,8 @@
     {
       "Type": "Ministry",
       "Name": "Ministère de la Fonction publique MFP",
-      "Address": "26, rue Sainte-Zithe",
-      "Postal Code": 2763,
+      "Address": "10, Avenue John F. Kennedy",
+      "Postal Code": 1855,
       "City": "Luxembourg",
       "E-Mail": "fonction-publique@mp.etat.lu",
       "Confidence": 95
