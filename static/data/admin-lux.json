@@ -2,8 +2,8 @@
     {
       "Type": "Commune",
       "Name": "Administration communale de Beaufort",
-      "Address": "2, rue de la Gare",
-      "Postal Code": 6313,
+      "Address": "9 Rue de l'Église",
+      "Postal Code": 6315,
       "City": "Beaufort",
       "E-Mail": "secretariat@beaufort.lu",
       "Confidence": 95
@@ -11,8 +11,8 @@
     {
       "Type": "Commune",
       "Name": "Administration communale de Bech",
-      "Address": "15, route de Luxembourg",
-      "Postal Code": 6214,
+      "Address": "1 Enneschtgaass",
+      "Postal Code": 6230,
       "City": "Bech",
       "E-Mail": "secretariat@bech.lu",
       "Confidence": 95
@@ -1455,7 +1455,7 @@
       "Postal Code": 1855,
       "City": "Luxembourg",
       "E-Mail": "cgpo@etat.lu",
-      "Confidence": 95
+      "Confidence": "M"
     },
     {
       "Type": "",
@@ -2607,7 +2607,7 @@
       "Postal Code": 1855,
       "City": "Luxembourg",
       "E-Mail": "contact@ina.public.lu",
-      "Confidence": 95
+      "Confidence": "M"
     },
     {
       "Type": "",
@@ -2954,19 +2954,19 @@
     {
       "Type": "Ministry",
       "Name": "Ministère de l'Environnement, du Climat et de la Biodiversité MECB",
-      "Address": "5, square de la Gare",
-      "Postal Code": 1616,
+      "Address": "4, Place de l'Europe",
+      "Postal Code": 1499,
       "City": "Luxembourg",
-      "E-Mail": "contact@mecb.etat.lu",
-      "Confidence": 95
+      "E-Mail": "info@mev.etat.lu",
+      "Confidence": "M"
     },
     {
       "Type": "Ministry",
       "Name": "Ministère de la Culture MCULT",
-      "Address": "21, rue de la Loi",
-      "Postal Code": 1802,
+      "Address": "4, boulevard Roosevelt",
+      "Postal Code": 2450,
       "City": "Luxembourg",
-      "E-Mail": "culture@mc.etat.lu",
+      "E-Mail": "info@mc.etat.lu",
       "Confidence": 100
     },
     {
@@ -2994,7 +2994,7 @@
       "Postal Code": 1855,
       "City": "Luxembourg",
       "E-Mail": "fonction-publique@mp.etat.lu",
-      "Confidence": 95
+      "Confidence": "M"
     },
     {
       "Type": "Ministry",
